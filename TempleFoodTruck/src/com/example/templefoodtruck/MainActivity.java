@@ -73,5 +73,19 @@ public class MainActivity extends FragmentActivity{
 
 
 
+	
+class getAllTrucksTask extends AsyncTask<ApiConnector,Long,JSONArray>{
+
+	@Override
+	protected JSONArray doInBackground(ApiConnector... params) {
+		return params[0].getAllTrucks();
+	}
+	
+	protected void onPostExecute(JSONArray jsonArray){
+		//setTextToTextView(jsonArray);
+	}
+
+}
+
 }
    
