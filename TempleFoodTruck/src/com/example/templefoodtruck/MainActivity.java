@@ -71,7 +71,23 @@ public class MainActivity extends FragmentActivity{
 	}
 	
 
-
+	private void setTextToTextView(JSONArray jsonArray) {
+		String s = "";
+		for(int i=0; i<jsonArray.length(); i++){
+			JSONObject json = null;
+			
+			try{
+			json = jsonArray.getJSONObject(i);
+			s = s+
+					"lng: " + json.getString("Lng") + "\n";			
+			}
+			catch(JSONException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		this.txtView.setText(s);
+	}
 
 	
 class getAllTrucksTask extends AsyncTask<ApiConnector,Long,JSONArray>{
@@ -82,7 +98,7 @@ class getAllTrucksTask extends AsyncTask<ApiConnector,Long,JSONArray>{
 	}
 	
 	protected void onPostExecute(JSONArray jsonArray){
-		//setTextToTextView(jsonArray);
+		setTextToTextView(jsonArray);
 	}
 
 }
