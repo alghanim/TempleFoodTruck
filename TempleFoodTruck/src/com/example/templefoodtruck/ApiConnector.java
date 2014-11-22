@@ -23,6 +23,21 @@ public class ApiConnector {
 		HttpEntity httpEntity = null;
 		JSONArray jsonArray = null;
 		
+	       try {
+				DefaultHttpClient client = new DefaultHttpClient();
+				HttpGet httpGet = new HttpGet(url);						
+				HttpResponse httpResponse = client.execute(httpGet);
+				httpEntity = httpResponse.getEntity();
+				
+	    	} catch (MalformedURLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+
 
 
 		return jsonArray;	

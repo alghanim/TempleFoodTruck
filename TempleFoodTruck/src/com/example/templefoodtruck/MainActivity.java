@@ -6,8 +6,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Context;
-import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -16,7 +14,8 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
-import android.widget.TextView;
+import android.view.View;
+import android.widget.Button;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -34,19 +33,28 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 	Marker posMarker;
 	Location userLocation;
 	LatLng truckLocation;
-	double[] truckDistanceFromUser = new double[numOfTrucks];
-	
+	LatLng[] truckLocations = new LatLng[numOfTrucks];
+	LatLng[] truckDistanceFromUser = new LatLng[numOfTrucks];
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		Button findNearestTrucks = (Button)findViewById(R.id.btnFindNearestTrucks);
+		
+		findNearestTrucks.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
+			}
+		});
+		
 		new getAllTrucksTask().execute(new ApiConnector());
 
 		getMap();
-		UserCurrentLocation();
-		//locationManager.requestLocationUpdates(locationProvider, 10, 1, this);
+		UserCurrentLocation();		
 	}
 
 	// sets up the map
@@ -58,31 +66,25 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 	}
 
 	// provide current user location
-	private void UserCurrentLocation() {
+	private void UserCurrentLocation() { 
 
-		//googleMap.setMyLocationEnabled(true);
-		//Criteria criteria = new Criteria();
+		googleMap.setMyLocationEnabled(true);
 		locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-		//locationProvider = locationManager.getBestProvider(criteria, true);
-		locationProvider = locationManager.NETWORK_PROVIDER;
+		locationProvider = LocationManager.GPS_PROVIDER;
 		userLocation = locationManager.getLastKnownLocation(locationProvider);
 
+		googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+		double latitude = userLocation.getLatitude();
+		double longitude = userLocation.getLongitude();
 
-			googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-			double latitude = userLocation.getLatitude();
-			double longitude = userLocation.getLongitude();
-
-			Log.e("lat: ", "" + latitude);
-			Log.e("lon: ", "" + longitude);
-
-			LatLng latLng = new LatLng(latitude, longitude);
-			googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-			this.posMarker = googleMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("You are here!"));
-			googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
-			//this.posMarker.remove();
+		LatLng latLng = new LatLng(latitude, longitude);
+		googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+		this.posMarker = googleMap.addMarker(new MarkerOptions().position(
+				new LatLng(latitude, longitude)).title("You are here!"));
+		googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
+		this.posMarker.remove();
 	}
 
-	
 	@Override
 	protected void onPause() {
 		// TODO Auto-generated method stub
@@ -94,11 +96,10 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 	protected void onResume() {
 		// TODO Auto-generated method stub
 		super.onResume();
-		locationManager.requestLocationUpdates(locationProvider, 500, 1, this);
+		locationManager.requestLocationUpdates(locationProvider, 500, 1, this);     
 	}
 
-
-	// gets all the trucks from ApiConnector class which returns a JSONArray 
+	// gets all the trucks from ApiConnector class which returns a JSONArray
 	class getAllTrucksTask extends AsyncTask<ApiConnector, Long, JSONArray> {
 
 		@Override
@@ -109,9 +110,8 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 		protected void onPostExecute(JSONArray jsonArray) {
 			setTrucksOnMap(jsonArray);
 		}
-	}
-	
-	
+	}  
+
 	// displays all the trucks on the map
 	private void setTrucksOnMap(JSONArray jsonArray) {
 		String s = "";
@@ -122,9 +122,12 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 				json = jsonArray.getJSONObject(i);
 
 				String truck_name = json.getString("Truck_Name");
-				double lat = Double.parseDouble(json.getString("Lat"));
-				double lng = Double.parseDouble(json.getString("Lng"));
-				truckLocation = new LatLng(lat, lng);
+				double truckLat = Double.parseDouble(json.getString("Lat"));
+				double truckLng = Double.parseDouble(json.getString("Lng"));
+				truckLocation = new LatLng(truckLat, truckLng);
+
+				truckLocations[i] = truckLocation;
+				Log.e("truckDistanceFromUser: ", truckLocations[i].toString());
 				
 				this.posMarker = googleMap.addMarker(new MarkerOptions()
 						.position(truckLocation).title(truck_name));
@@ -138,21 +141,40 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 		}
 	}
 
-	
-	private void findDistanceFromUserToTruck()
-	{
-		//userLocation.distanceTo(dest);
+	private void EnterDistancesIntoDatabase(){
+//		try{
+//			HttpClient httpClient = new DefaultHttpClient();
+//			
+//		}
+//		catch()
+//		{
+//			
+//		}
 	}
 	
+	private void findDistanceFromUserToTruck() {
+		// userLocation.distanceTo(dest);
+	}
+
 	// gives updated user location as he/she moves to a new position
 	@Override
 	public void onLocationChanged(Location location) {
 		// TODO Auto-generated method stub
 		this.posMarker.remove();
-
+		String provider = location.getProvider();
+		float accuracy = location.getAccuracy();
+		long time = location.getTime();
 		double latitude = location.getLatitude();
 		double longitude = location.getLongitude();
-		this.posMarker = googleMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("You are here!"));
+		
+		Log.e("provider: ", provider);
+		Log.e("lat: ", "" + latitude);
+		Log.e("lng: ", "" + longitude);
+		Log.e("accuracy: ", "" + accuracy);
+		Log.e("time: ", "" + time);
+		
+		this.posMarker = googleMap.addMarker(new MarkerOptions().position(
+				new LatLng(latitude, longitude)).title("You are here!"));
 	}
 
 	@Override
@@ -172,5 +194,7 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 		// TODO Auto-generated method stub
 
 	}
+	
+
 
 }

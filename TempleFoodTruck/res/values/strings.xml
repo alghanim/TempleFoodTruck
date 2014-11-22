@@ -3,5 +3,6 @@
 
     <string name="app_name">TempleFoodTruck</string>
     <string name="hello_world">Hello world!</string>
+    <string name="btn_FindNearestTrucks">Find Nearest Trucks</string>
 
 </resources>
