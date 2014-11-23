@@ -36,6 +36,22 @@ public class ApiConnector {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		if(httpEntity != null){
+			try {
+				String entityResponse = EntityUtils.toString(httpEntity);
+				Log.e("Entity Response: ", entityResponse);
+				jsonArray = new JSONArray(entityResponse);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 
 		return jsonArray;	
