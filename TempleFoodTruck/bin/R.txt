@@ -90,9 +90,8 @@ int drawable ic_plusone_standard_off_client 0x7f02001d
 int drawable ic_plusone_tall_off_client 0x7f02001e
 int drawable powered_by_google_dark 0x7f02001f
 int drawable powered_by_google_light 0x7f020020
-int id ActivityTitle 0x7f080018
 int id book_now 0x7f08000e
-int id btnFindNearestTrucks 0x7f080016
+int id btnFindNearestTrucks 0x7f080015
 int id buyButton 0x7f08000a
 int id buy_now 0x7f08000f
 int id buy_with_google 0x7f080010
@@ -112,8 +111,8 @@ int id satellite 0x7f080003
 int id selectionDetails 0x7f08000b
 int id strict_sandbox 0x7f080009
 int id terrain 0x7f080004
-int id truckList 0x7f080017
-int id txtView 0x7f080015
+int id textView1 0x7f080017
+int id truckList 0x7f080016
 int id wrap_content 0x7f08000d
 int integer google_play_services_version 0x7f070000
 int layout activity_main 0x7f030000

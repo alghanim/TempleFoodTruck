@@ -1,14 +1,18 @@
 package com.example.templefoodtruck;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.PriorityQueue;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -45,6 +49,8 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 	LatLng truckLocation1;
 	float distances;
 	String s = "";
+	List TrucksInfoWithDistances = new ArrayList<String>();
+	String SortedTrucks;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -52,14 +58,14 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 		setContentView(R.layout.activity_main);
 
 		Button findNearestTrucks = (Button) findViewById(R.id.btnFindNearestTrucks);
-		txtView = (TextView) findViewById(R.id.txtView);
 
 		findNearestTrucks.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				Intent moveToTruckList = new Intent(MainActivity.this,TruckList.class);
-				moveToTruckList.putExtra("distance", s);
+				Intent moveToTruckList = new Intent(MainActivity.this,
+						TruckList.class);
+				moveToTruckList.putExtra("SortedTrucks", SortedTrucks);
 				startActivity(moveToTruckList);
 			}
 		});
@@ -122,14 +128,13 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 		}
 
 		protected void onPostExecute(JSONArray jsonArray) {
-			setTrucksOnMap(jsonArray);
+			setTrucksOnMapAndSortThem(jsonArray);
 		}
 	}
 
 	// displays all the trucks on the map
 
-	private void setTrucksOnMap(JSONArray jsonArray) {
-		
+	private void setTrucksOnMapAndSortThem(JSONArray jsonArray) {
 
 		for (int i = 0; i < jsonArray.length(); i++) {
 			JSONObject json = null;
@@ -137,55 +142,44 @@ public class MainActivity extends FragmentActivity implements LocationListener {
 			try {
 				json = jsonArray.getJSONObject(i);
 
-				truck_name = json.getString("Truck_Name");
-				truck_id = json.getString("Truck_Id");
-				String ethnicity = json.getString("Ethnicity");
-				
 				double truckLat = Double.parseDouble(json.getString("Lat"));
 				double truckLng = Double.parseDouble(json.getString("Lng"));
 				truckLocation.setLatitude(truckLat);
 				truckLocation.setLongitude(truckLng);
 
 				truckLocation1 = new LatLng(truckLat, truckLng);
-				
-				distances = userLocation.distanceTo(truckLocation);
-				
-				truckLocations[i] = truckLocation1;
-				 Log.println(i,"truckDistanceFromUser: ",
-				 truckLocations[i].toString());
 
-			s = s + "\nName: " 
-			+ truck_name 
-			+ "\nEthnicity : "
-			+ ethnicity
-			+"\nDistance From User: "
-			+distances + "\n";
+				distances = userLocation.distanceTo(truckLocation);
+				truck_name = json.getString("Truck_Name");
+				truck_id = json.getString("Truck_Id");
+				String ethnicity = json.getString("Ethnicity");
+
+				truckLocations[i] = truckLocation1;
+				Log.println(i, "truckDistanceFromUser: ",
+						truckLocations[i].toString());
+
+				s = "\nDistance From User: " + distances + "\nName: "
+						+ truck_name + "\nEthnicity : " + ethnicity;
+
+				TrucksInfoWithDistances.add(s);
 
 				this.posMarker = googleMap.addMarker(new MarkerOptions()
 						.position(truckLocation1).title(
-								truck_name + "" + truck_id));
+								truck_id + " :" + truck_name));
 
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
+
 		}
-		
+
+		Collections.sort(TrucksInfoWithDistances);
+		SortedTrucks = TrucksInfoWithDistances.toString().replace("[", "")
+				.replace("]", "").replace(",", "\n");
+
 	}
 
-	private void EnterDistancesIntoDatabase() {
-		// try{
-		// HttpClient httpClient = new DefaultHttpClient();
-		//
-		// }
-		// catch()
-		// {
-		//
-		// }
-	}
 
-	private void findDistanceFromUserToTruck() {
-		// userLocation.distanceTo(dest);
-	}
 
 	// gives updated user location as he/she moves to a new position
 	@Override
